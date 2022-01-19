@@ -23,17 +23,13 @@ const Master = () => {
   });
 
   cluster.on("disconnect", (worker) => {
-    console.log(
-      `Worker ${worker.id} with PID ${worker.process.pid} disconnected.`
-    );
+    console.log(`Worker ${worker.id} with PID ${worker.process.pid} disconnected.`);
     worker.status = "disconnect";
     workers.set(worker.id, worker);
   });
 
   cluster.on("exit", (worker, code, signal) => {
-    console.log(
-      `${worker.id} died with ${signal || "exit code " + code}, Restarting...`
-    );
+    console.log(`${worker.id} died with ${signal || "exit code " + code}, Restarting...`);
     if (workers.has(worker.id)) {
       workers.delete(worker.id);
     }
@@ -54,13 +50,20 @@ const Master = () => {
 
   process.on("SIGQUIT", () => {
     autoRestart = false;
-    console.log(
-      "QUIT received, will exit once all workers have finished current requests"
-    );
-    this.workers.forEach((worker) => {
+    console.log("QUIT received, will exit once all workers have finished current requests");
+    workers.forEach((worker) => {
       worker.send("quit");
     });
   });
+
+  process.on("SIGTERM", () => {
+    autoRestart = false;
+    console.log("TERM received, will exit once all workers have finished current requests");
+    workers.forEach((worker) => {
+      worker.send("quit");
+    });
+  });
+
 };
 
 const Worker = (fn) => {

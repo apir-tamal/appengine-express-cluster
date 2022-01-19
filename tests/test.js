@@ -14,12 +14,12 @@ app.get('/', function (req, res) {
 });
 
 ExpressCluster((worker) => {
-    // setTimeout(() => {
-    //     if (worker.id == 1) {
-    //         worker.disconnect();
-    //     }
-    // }, 3000);
+    setTimeout(() => {
+        if (worker.id == 1) {
+            worker.disconnect();
+        }
+    }, 3000);
     app.listen(port, () => {
-        console.log(`Example app listening at http://localhost:${port}`)
+        console.log(`Express server : ${worker.id} listening at http://localhost:${port}`)
     })
 });
